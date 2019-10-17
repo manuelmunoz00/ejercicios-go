@@ -3,55 +3,81 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
-const numeroHilos = 20
+// const numeroHilos = 20
 
 func main() {
+	fmt.Println("Welcome to the dinner")
 	defer delicioso()
-	invitados := [4]string{"Alice", "John", "Steven", "Arthur"}
-	platillos := make(chan string, 3)
-	for i := 0; i < len(invitados); i++ {
-		go longanizas(invitados[i], platillos)
-		go morcillas(invitados[i], platillos)
-		go chunchules(invitados[i], platillos)
+	morsels := []string{"Chorizos", "Longanizas", "Chunchules", "Morcillas", "Pamplonas"}
+	invitados := make(chan string, 50)
+	var wg sync.WaitGroup
+	for i := 0; i < 50; i++ {
+		wg.Add(1)
+		rand.Seed(time.Now().UnixNano())
+		go alice(morsels[rand.Intn(len(morsels))], invitados, &wg)
+		go arthur(morsels[rand.Intn(len(morsels))], invitados, &wg)
+		go steven(morsels[rand.Intn(len(morsels))], invitados, &wg)
+		go john(morsels[rand.Intn(len(morsels))], invitados, &wg)
 	}
+
+	// wait for all goroutines to end
+	wg.Wait()
+	// close the channel so that we not longer expect writes to it
+	close(invitados)
+
 	count := 0
-	for elem := range platillos {
+	for elem := range invitados {
 		count++
 		fmt.Println(elem)
 	}
-	close(platillos)
+
 }
 
-func longanizas(persona string, p chan string) {
+func alice(plato string, p chan string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	rand.Seed(time.Now().UnixNano())
 	min := 300
 	max := 800
 	tiempoProcesamiento := rand.Intn(max-min) + min
 	time.Sleep(time.Duration(tiempoProcesamiento) * time.Millisecond)
-	mensaje := fmt.Sprintf("%s%s", persona, " disfruta longanizas")
+	mensaje := fmt.Sprintf("%s%s", "Alice disfruta ", plato)
 	p <- mensaje
 }
 
-func morcillas(persona string, p chan string) {
+func arthur(plato string, p chan string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	rand.Seed(time.Now().UnixNano())
 	min := 300
 	max := 800
 	tiempoProcesamiento := rand.Intn(max-min) + min
 	time.Sleep(time.Duration(tiempoProcesamiento) * time.Millisecond)
-	mensaje := fmt.Sprintf("%s%s", persona, " disfruta morcillas")
+	mensaje := fmt.Sprintf("%s%s", "Arthur disfruta ", plato)
 	p <- mensaje
 }
 
-func chunchules(persona string, p chan string) {
+func steven(plato string, p chan string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	rand.Seed(time.Now().UnixNano())
 	min := 300
 	max := 800
 	tiempoProcesamiento := rand.Intn(max-min) + min
 	time.Sleep(time.Duration(tiempoProcesamiento) * time.Millisecond)
-	mensaje := fmt.Sprintf("%s%s", persona, " disfruta chunchules")
+	mensaje := fmt.Sprintf("%s%s", "Steven disfruta ", plato)
+	p <- mensaje
+}
+
+func john(plato string, p chan string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	rand.Seed(time.Now().UnixNano())
+	min := 300
+	max := 800
+	tiempoProcesamiento := rand.Intn(max-min) + min
+	time.Sleep(time.Duration(tiempoProcesamiento) * time.Millisecond)
+	mensaje := fmt.Sprintf("%s%s", "John disfruta ", plato)
 	p <- mensaje
 }
 
