@@ -1,0 +1,1 @@
+Contenido de prueba para leer desde un archivo go
