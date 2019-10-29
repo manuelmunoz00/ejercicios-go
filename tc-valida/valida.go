@@ -13,7 +13,6 @@ type Tarjeta struct {
 
 func main() {
 	var tc string
-	fmt.Println("Welcome")
 	fmt.Println("Ingrese los dígitos de la tarjeta de crédito o débito")
 	fmt.Scanf("%s", &tc)
 	nuevaTarjeta := new(Tarjeta)
